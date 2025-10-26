@@ -1,5 +1,6 @@
 import streamlit as st
 from io import BytesIO
+from services.simulate_client import transform_face
 
 # -- IMPORTS FUTURS --
 # from app.services.openai_client import transform_face
@@ -29,7 +30,7 @@ with col2:
 image = cam_img or up_img
 
 if image:
-    st.image(image, caption="Image d’origine", use_container_width=True)
+    st.image(image, caption="Image d’origine", width="stretch")
 
 # --- ACTION ---
 st.markdown("---")
@@ -37,19 +38,18 @@ btn = st.button("🧛‍♂️ Transformer maintenant !", type="primary", disabl
 
 if btn and image:
     with st.spinner("Transformation en cours..."):
-        # Ici tu appelleras la méthode de ton backend :
-        # transformed_bytes = transform_face(effect, image.getvalue())
-        # save_image_bytes(transformed_bytes, effect)
-        # (pour l’instant on simule le résultat)
+        try:
+            transformed_bytes = transform_face(effect, image.getvalue())
 
-        st.success(f"Effet {effect} appliqué avec succès ! ✨")
-        st.image(image, caption=f"Résultat simulé ({effect})", use_container_width=True)
+            st.success(f"Effet {effect} appliqué avec succès ! ✨")
+            st.image(transformed_bytes, caption=f"Résultat ({effect})", width="stretch")
 
-        # Téléchargement (fictif pour le moment)
-        st.download_button(
-            label="📥 Télécharger le résultat",
-            data=image.getvalue(),
-            file_name=f"halloween_{effect}.png",
-            mime="image/png"
-        )
+            st.download_button(
+                label="📥 Télécharger le résultat",
+                data=transformed_bytes,
+                file_name=f"halloween_{effect}.png",
+                mime="image/png"
+            )
 
+        except Exception as e:
+            st.error(f"Une erreur est survenue : {e}")

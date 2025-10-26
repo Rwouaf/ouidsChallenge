@@ -22,17 +22,18 @@ Créer une application où :
 
 ## 📂 Structure du projet
 
+```
 ouidsChallenge/
 ├─ app/
 │ ├─ ui.py # ✅ Interface Streamlit (front)
 │ └─ services/
-│ ├─ openai_client.py # ⚙️ Appel à l’API d’image (à coder)
-│ ├─ storage.py # ⚙️ Sauvegarde des images (à coder)
-│ └─ mailer.py # ⚙️ Envoi d’emails (à coder)
+│   ├─ openai_client.py # ⚙️ Appel à l’API d’image
+│   ├─ storage.py # ⚙️ Sauvegarde des images (à coder)
+│   └─ mailer.py # ⚙️ Envoi d’emails (à coder)
 ├─ requirements.txt # Dépendances Python
 ├─ .env.example # Modèle de configuration
 └─ README.md # Ce guide complet
-
+```
 
 ---
 
@@ -107,7 +108,6 @@ Un bouton "Transformer maintenant"
 
 Un bouton "Télécharger le résultat"
 
-🧪 Pour l’instant, la transformation est simulée (affiche l’image d’origine).
 
 # 🧑‍💻 Ce qui fonctionne déjà
 
@@ -123,21 +123,10 @@ Bouton de transformation
 
 Téléchargement d’image
 
-Champ email (simulation d’envoi)
+Transformation d'image via call API
 
 
 # 🧰 Ce qu’il reste à implémenter
-## 🧠 app/services/openai_client.py
-    
-    def save_image_bytes(img_bytes: bytes, effect: str) -> str:
-    """
-    TODO:
-    - Sauvegarder l'image dans un dossier local (outputs/)
-    - Créer le dossier s’il n’existe pas
-    - Retourner le chemin du fichier ou une URL
-    """
-    pass
-
 ## 💾 app/services/storage.py
     def save_image_bytes(img_bytes: bytes, effect: str) -> str:
         """
