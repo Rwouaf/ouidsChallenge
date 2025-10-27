@@ -36,7 +36,10 @@ if st.session_state.page == "camera":
     if image:
         st.session_state.photo = image
         go_to("filter")
-        st.rerun()  # ✅ nouvelle API officielle
+        st.rerun()
+
+    st.divider()
+    st.button("🔒 Confidentialité / RGPD", on_click=lambda: go_to("rgpd"))
 
 
 # ------------------------------
@@ -45,7 +48,7 @@ if st.session_state.page == "camera":
 elif st.session_state.page == "filter":
     st.title("🧙‍♀️ Choisis ton filtre")
 
-    st.image(st.session_state.photo, caption="Ta photo", use_container_width=True)
+    st.image(st.session_state.photo, caption="Ta photo", width="stretch")
 
     effect = st.radio(
         "Sélectionne ton effet d’Halloween",
@@ -74,7 +77,7 @@ elif st.session_state.page == "transform":
             transformed_bytes = transform_face(effect, image.getvalue())
             st.session_state.result = transformed_bytes
             go_to("result")
-            st.rerun()  # ✅ nouvelle API
+            st.rerun()
         except Exception as e:
             st.error(f"❌ Erreur : {e}")
             st.button("↩️ Revenir", on_click=lambda: go_to("camera"))
@@ -90,7 +93,7 @@ elif st.session_state.page == "result":
         st.image(
             st.session_state.result,
             caption=f"Effet : {st.session_state.effect.capitalize()}",
-            use_container_width=True,
+            width="stretch",
         )
 
         st.download_button(
@@ -103,3 +106,39 @@ elif st.session_state.page == "result":
         st.warning("Aucune image transformée disponible. Essaie de recommencer.")
 
     st.button("🔁 Refaire une photo", on_click=lambda: go_to("camera"))
+    st.button("🔒 Confidentialité / RGPD", on_click=lambda: go_to("rgpd"))
+
+
+# ------------------------------
+# PAGE 5 : RGPD / Confidentialité
+# ------------------------------
+elif st.session_state.page == "rgpd":
+    st.title("🔒 Confidentialité & RGPD")
+
+    st.markdown(
+        """
+        ## Notre engagement pour ta vie privée 🎃  
+
+        Ce site respecte entièrement le **Règlement Général sur la Protection des Données (RGPD)**.  
+        Voici les points essentiels :
+
+        - 🖼️ **Aucune photo n’est conservée** :  
+          Les images que tu prends ou importes sont **traitées uniquement en mémoire**, puis **immédiatement supprimées** après la transformation.
+
+        - 🧠 **Aucune donnée personnelle n’est enregistrée** :  
+          Nous ne stockons **aucune information d’utilisateur**, ni adresse IP, ni métadonnée, ni historique d’utilisation.
+
+        - ⚙️ **Traitement local ou éphémère côté serveur** :  
+          Les images sont transmises uniquement pour appliquer l’effet sélectionné, puis détruites instantanément après envoi du résultat.
+
+        - 🚫 **Aucune utilisation commerciale, aucun tracking** :  
+          Pas de cookies de suivi, pas d’analyse de comportement, pas de publicité.
+
+        ---
+
+        👻 *En résumé : ton visage t’appartient, et il disparaît du serveur aussitôt transformé.*  
+        """
+    )
+
+    st.divider()
+    st.button("⬅️ Retour", on_click=lambda: go_to("camera"))
