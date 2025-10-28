@@ -29,14 +29,13 @@ class HalloweenImageTransformer:
         if not api_key:
             raise ValueError("La clé API OpenAI est manquante.")
         self.client = OpenAI(api_key=api_key)
-        self.banner_path = banner_path  # chemin du bandeau
+        self.banner_path = banner_path
 
     def transform_face(self, effect: str, image_bytes: bytes) -> bytes:
         theme = self.THEMES.get(effect.lower(), "créature d’Halloween")
         prompt = self.BASE_PROMPT.format(theme=theme)
 
         try:
-            # --- 1. Transformation OpenAI ---
             image_file = BytesIO(image_bytes)
             image_file.name = "input.jpg"
 
@@ -51,10 +50,8 @@ class HalloweenImageTransformer:
             edited_image_base64 = response.data[0].b64_json
             edited_image_bytes = base64.b64decode(edited_image_base64)
 
-            # --- 2. Ajout du bandeau ---
             result_img = self._add_banner(edited_image_bytes)
 
-            # Retourne l'image finale (PNG)
             output = BytesIO()
             result_img.save(output, format="PNG")
             return output.getvalue()
