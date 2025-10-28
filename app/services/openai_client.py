@@ -1,14 +1,14 @@
 import base64
 from openai import OpenAI
 from io import BytesIO
+from PIL import Image
 
 class HalloweenImageTransformer:
     """
-    Classe pour transformer des images en version Halloween avec OpenAI.
-    Initialise le client OpenAI une seule fois avec la clé d'API.
+    Classe pour transformer des images en version Halloween avec OpenAI,
+    puis ajouter un bandeau en bas de l’image.
     """
 
-    # Liste des thèmes possibles
     THEMES = {
         "vampire": "vampire élégant",
         "sorcière": "sorcière moderne",
@@ -17,7 +17,6 @@ class HalloweenImageTransformer:
         "squelette": "squelette dansant",
     }
 
-    # Prompt de base pour la transformation
     BASE_PROMPT = """
     Transforme la personne sur cette image en une version cartoon semi-réaliste d’elle-même pour Halloween.
     Garde le visage reconnaissable (forme du visage, yeux, cheveux).
@@ -26,26 +25,18 @@ class HalloweenImageTransformer:
     Amusant et festif, pas effrayant. Fond stylisé Halloween (citrouilles, brume, lune).
     """
 
-    def __init__(self, api_key: str):
-        """
-        Initialise le client OpenAI avec la clé API fournie.
-        :param api_key: Clé API OpenAI
-        """
+    def __init__(self, api_key: str, banner_path: str = "assets/logo.png"):
         if not api_key:
             raise ValueError("La clé API OpenAI est manquante.")
         self.client = OpenAI(api_key=api_key)
+        self.banner_path = banner_path  # chemin du bandeau
 
     def transform_face(self, effect: str, image_bytes: bytes) -> bytes:
-        """
-        Transforme une image en version Halloween selon le thème choisi.
-        :param effect: Thème choisi (ex: "vampire", "zombie", etc.)
-        :param image_bytes: Image en bytes (upload ou caméra)
-        :return: Image transformée (bytes PNG)
-        """
         theme = self.THEMES.get(effect.lower(), "créature d’Halloween")
         prompt = self.BASE_PROMPT.format(theme=theme)
 
         try:
+            # --- 1. Transformation OpenAI ---
             image_file = BytesIO(image_bytes)
             image_file.name = "input.jpg"
 
@@ -57,11 +48,38 @@ class HalloweenImageTransformer:
                 quality="medium",
             )
 
-            # Récupération de l'image générée (base64)
             edited_image_base64 = response.data[0].b64_json
             edited_image_bytes = base64.b64decode(edited_image_base64)
-            return edited_image_bytes
+
+            # --- 2. Ajout du bandeau ---
+            result_img = self._add_banner(edited_image_bytes)
+
+            # Retourne l'image finale (PNG)
+            output = BytesIO()
+            result_img.save(output, format="PNG")
+            return output.getvalue()
 
         except Exception as e:
             print(f"[ERREUR] Transformation échouée : {e}")
             raise
+
+    def _add_banner(self, image_bytes: bytes) -> Image.Image:
+        """Ajoute un bandeau (logo Halloween) en bas de l’image avec fond gris transparent."""
+        base_img = Image.open(BytesIO(image_bytes)).convert("RGBA")
+        banner = Image.open(self.banner_path).convert("RGBA")
+
+        target_height = int(base_img.height * 0.20)
+        aspect_ratio = banner.width / banner.height
+        target_width = int(target_height * aspect_ratio)
+
+        banner = banner.resize((target_width, target_height), Image.LANCZOS)
+
+        gray_bg = Image.new("RGBA", (base_img.width, target_height), (1, 11, 29, 150))
+
+        y_pos = base_img.height - target_height
+        x_pos = (base_img.width - target_width) // 2
+
+        base_img.alpha_composite(gray_bg, (0, y_pos))
+        base_img.alpha_composite(banner, (x_pos, y_pos))
+
+        return base_img
