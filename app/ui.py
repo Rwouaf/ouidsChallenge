@@ -1,7 +1,19 @@
 import streamlit as st
-from services.simulate_client import transform_face
+from services.openai_client import HalloweenImageTransformer
+import os
+from dotenv import load_dotenv
+
+# Charge .env
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY") or st.secrets.get("API_KEY")
+
+if not API_KEY:
+    st.error("⚠️ Clé API introuvable : .env (local)")
+    st.stop()
 
 # --- CONFIG ---
+transformer = HalloweenImageTransformer(API_KEY)
 st.set_page_config(page_title="🎃 Halloween Transformer", page_icon="🎃", layout="centered")
 
 # --- INIT SESSION ---
@@ -74,7 +86,7 @@ elif st.session_state.page == "transform":
 
     with st.spinner(f"Application de l’effet **{effect}**..."):
         try:
-            transformed_bytes = transform_face(effect, image.getvalue())
+            transformed_bytes = transformer.transform_face(effect, image.getvalue())
             st.session_state.result = transformed_bytes
             go_to("result")
             st.rerun()
@@ -117,26 +129,26 @@ elif st.session_state.page == "rgpd":
 
     st.markdown(
         """
-        ## Notre engagement pour ta vie privée 🎃  
+        ## Notre engagement pour ta vie privée 🎃
 
-        Ce site respecte entièrement le **Règlement Général sur la Protection des Données (RGPD)**.  
+        Ce site respecte entièrement le **Règlement Général sur la Protection des Données (RGPD)**.
         Voici les points essentiels :
 
-        - 🖼️ **Aucune photo n’est conservée** :  
+        - 🖼️ **Aucune photo n’est conservée** :
           Les images que tu prends ou importes sont **traitées uniquement en mémoire**, puis **immédiatement supprimées** après la transformation.
 
-        - 🧠 **Aucune donnée personnelle n’est enregistrée** :  
+        - 🧠 **Aucune donnée personnelle n’est enregistrée** :
           Nous ne stockons **aucune information d’utilisateur**, ni adresse IP, ni métadonnée, ni historique d’utilisation.
 
-        - ⚙️ **Traitement local ou éphémère côté serveur** :  
+        - ⚙️ **Traitement local ou éphémère côté serveur** :
           Les images sont transmises uniquement pour appliquer l’effet sélectionné, puis détruites instantanément après envoi du résultat.
 
-        - 🚫 **Aucune utilisation commerciale, aucun tracking** :  
+        - 🚫 **Aucune utilisation commerciale, aucun tracking** :
           Pas de cookies de suivi, pas d’analyse de comportement, pas de publicité.
 
         ---
 
-        👻 *En résumé : ton visage t’appartient, et il disparaît du serveur aussitôt transformé.*  
+        👻 *En résumé : ton visage t’appartient, et il disparaît du serveur aussitôt transformé.*
         """
     )
 
