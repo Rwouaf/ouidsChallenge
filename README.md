@@ -31,16 +31,6 @@ Si tu veux exécuter le projet toi-même, suis les étapes ci-dessous 👇
 
 ---
 
-## 🚀 Installation locale
-
-### 🪜 Étape 1 — Cloner le projet
-```bash
-git clone https://github.com/Rwouaf/ouidsChallenge.git
-cd ouidsChallenge
-```
-
----
-
 ## 📂 Structure du projet
 
 ```
@@ -54,6 +44,16 @@ ouidsChallenge/
 ├─ requirements.txt         # Dépendances Python
 ├─ .env.example             # Modèle de configuration
 └─ README.md                # Ce guide complet
+```
+
+---
+
+## 🚀 Installation locale
+
+### 🪜 Étape 1 — Cloner le projet
+```bash
+git clone https://github.com/Rwouaf/ouidsChallenge.git
+cd ouidsChallenge
 ```
 
 ---
